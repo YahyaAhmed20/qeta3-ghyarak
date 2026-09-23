@@ -93,8 +93,8 @@ DATABASES = {
         'NAME': 'railway',
         'USER': 'postgres',
         'PASSWORD': 'zXbiJPerhYGiehiTqWuaDKGyGorQuXOY',
-        'HOST': 'postgres.railway.internal',
-        'PORT': '5432',
+        'HOST': 'monorail.proxy.rlwy.net',
+        'PORT': '39286',
     }
 }
 
