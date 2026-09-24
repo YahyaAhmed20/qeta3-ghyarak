@@ -26,6 +26,14 @@ urlpatterns = [
         "api/v1/",
         include("apps.accounts.api.urls"),
     ),
+    path(
+        "api/v1/catalog/",
+        include("apps.catalog.api.urls"),
+    ),
+    path(
+        "api/v1/stores/",
+        include("apps.stores.api.urls"),
+    ),
 ]
 
 if settings.DEBUG:

@@ -55,6 +55,8 @@ INSTALLED_APPS = [
 
     "apps.accounts",
     "apps.vehicles.apps.VehiclesConfig",
+    "apps.catalog.apps.CatalogConfig",
+    "apps.stores.apps.StoresConfig",
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
