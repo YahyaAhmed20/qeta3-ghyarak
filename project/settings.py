@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.stores.apps.StoresConfig",
     "apps.inventory.apps.InventoryConfig",
     "apps.cart.apps.CartConfig",
+    "apps.orders.apps.OrdersConfig",
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
