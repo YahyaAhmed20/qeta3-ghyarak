@@ -14,3 +14,18 @@ class OrderStatus(models.TextChoices):
     FAILED_DELIVERY = "FAILED_DELIVERY", "Failed Delivery"
     RETURNED = "RETURNED", "Returned"
     REFUNDED = "REFUNDED", "Refunded"
+    
+    
+class DeliveryOTPStatus(models.TextChoices):
+    ACTIVE = "ACTIVE", "Active"
+    VERIFIED = "VERIFIED", "Verified"
+    EXPIRED = "EXPIRED", "Expired"
+    BLOCKED = "BLOCKED", "Blocked"
+    
+    
+class DeliveryAssignmentStatus(models.TextChoices):
+    ASSIGNED = "ASSIGNED", "Assigned"
+    ACCEPTED = "ACCEPTED", "Accepted"
+    DELIVERED = "DELIVERED", "Delivered"
+    FAILED = "FAILED", "Failed"
+    CANCELLED = "CANCELLED", "Cancelled"

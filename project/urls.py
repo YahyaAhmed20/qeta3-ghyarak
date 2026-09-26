@@ -38,6 +38,10 @@ urlpatterns = [
         "api/v1/stores/",
         include("apps.stores.api.urls"),
     ),
+    path(
+    "api/v1/orders/",
+        include("apps.orders.api.urls"),
+    ),
 ]
 
 if settings.DEBUG:

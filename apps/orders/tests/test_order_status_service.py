@@ -372,10 +372,25 @@ def test_delivering_order_sells_reserved_inventory(
         actor=delivery_user,
     )
 
+    order.refresh_from_db()
+
+    from apps.orders.services.delivery_otp import DeliveryOTPService
+
+    otp, code = DeliveryOTPService.create(
+        order=order,
+    )
+
+    verified_otp = DeliveryOTPService.verify(
+        order=order,
+        otp_id=otp.id,
+        code=code,
+    )
+
     OrderService.transition_status(
         order_id=order.id,
         new_status=OrderStatus.DELIVERED,
         actor=delivery_user,
+        delivery_otp_id=verified_otp.id,
     )
 
     inventory.refresh_from_db()
@@ -465,6 +480,20 @@ def test_delivered_inventory_sale_rolls_back_on_failure(
         actor=delivery_user,
     )
 
+    order.refresh_from_db()
+
+    from apps.orders.services.delivery_otp import DeliveryOTPService
+
+    otp, code = DeliveryOTPService.create(
+        order=order,
+    )
+
+    verified_otp = DeliveryOTPService.verify(
+        order=order,
+        otp_id=otp.id,
+        code=code,
+    )
+
     def failing_sell(*args, **kwargs):
         raise RuntimeError("Simulated inventory failure")
 
@@ -478,6 +507,531 @@ def test_delivered_inventory_sale_rolls_back_on_failure(
             order_id=order.id,
             new_status=OrderStatus.DELIVERED,
             actor=delivery_user,
+            delivery_otp_id=verified_otp.id,
+        )
+
+    order.refresh_from_db()
+    inventory.refresh_from_db()
+
+    assert order.status == OrderStatus.OUT_FOR_DELIVERY
+    assert inventory.on_hand == 10
+    assert inventory.reserved == 3
+    assert inventory.available == 7
+
+
+@pytest.mark.django_db
+def test_cannot_deliver_order_without_verified_delivery_otp(
+    customer,
+    active_store,
+    seller_product,
+):
+    from decimal import Decimal
+
+    from apps.cart.models import Cart, CartItem
+    from apps.inventory.models import Inventory
+    from apps.orders.constants import OrderStatus
+    from apps.orders.services.order import OrderService
+
+    inventory = Inventory.objects.create(
+        seller_product=seller_product,
+        on_hand=10,
+        reserved=0,
+    )
+
+    cart = Cart.objects.create(
+        customer=customer,
+        store=active_store,
+    )
+
+    CartItem.objects.create(
+        cart=cart,
+        seller_product=seller_product,
+        quantity=3,
+        unit_price=Decimal("250.00"),
+    )
+
+    order = OrderService.create_order(
+        customer=customer,
+        cart=cart,
+        address_snapshot={
+            "city": "Suez",
+            "address": "Test Address",
+        },
+    )
+
+    seller_owner = active_store.owner
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.ACCEPTED,
+        actor=seller_owner,
+    )
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.PREPARING,
+        actor=seller_owner,
+    )
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.READY,
+        actor=seller_owner,
+    )
+
+    delivery_user = type(
+        "DeliveryActor",
+        (),
+        {"role": "DELIVERY", "id": None},
+    )()
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.OUT_FOR_DELIVERY,
+        actor=delivery_user,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Delivery OTP is required",
+    ):
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=OrderStatus.DELIVERED,
+            actor=delivery_user,
+        )
+
+    order.refresh_from_db()
+    inventory.refresh_from_db()
+
+    assert order.status == OrderStatus.OUT_FOR_DELIVERY
+    assert inventory.on_hand == 10
+    assert inventory.reserved == 3
+    assert inventory.available == 7
+
+
+@pytest.mark.django_db
+def test_verified_delivery_otp_allows_delivery_and_sells_inventory(
+    customer,
+    active_store,
+    seller_product,
+):
+    from decimal import Decimal
+
+    from apps.cart.models import Cart, CartItem
+    from apps.inventory.constants import InventoryMovementType
+    from apps.inventory.models import Inventory, InventoryMovement
+    from apps.orders.constants import OrderStatus
+    from apps.orders.services.delivery_otp import DeliveryOTPService
+    from apps.orders.services.order import OrderService
+
+    inventory = Inventory.objects.create(
+        seller_product=seller_product,
+        on_hand=10,
+        reserved=0,
+    )
+
+    cart = Cart.objects.create(
+        customer=customer,
+        store=active_store,
+    )
+
+    CartItem.objects.create(
+        cart=cart,
+        seller_product=seller_product,
+        quantity=3,
+        unit_price=Decimal("250.00"),
+    )
+
+    order = OrderService.create_order(
+        customer=customer,
+        cart=cart,
+        address_snapshot={
+            "city": "Suez",
+            "address": "Test Address",
+        },
+    )
+
+    seller_owner = active_store.owner
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.ACCEPTED,
+        actor=seller_owner,
+    )
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.PREPARING,
+        actor=seller_owner,
+    )
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.READY,
+        actor=seller_owner,
+    )
+
+    delivery_user = type(
+        "DeliveryActor",
+        (),
+        {"role": "DELIVERY", "id": None},
+    )()
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.OUT_FOR_DELIVERY,
+        actor=delivery_user,
+    )
+    order.refresh_from_db()
+
+
+    otp, code = DeliveryOTPService.create(
+        order=order,
+    )
+
+    verified_otp = DeliveryOTPService.verify(
+        order=order,
+        otp_id=otp.id,
+        code=code,
+    )
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.DELIVERED,
+        actor=delivery_user,
+        delivery_otp_id=verified_otp.id,
+    )
+
+    order.refresh_from_db()
+    inventory.refresh_from_db()
+
+    assert order.status == OrderStatus.DELIVERED
+
+    assert inventory.on_hand == 7
+    assert inventory.reserved == 0
+    assert inventory.available == 7
+
+    assert InventoryMovement.objects.filter(
+        inventory=inventory,
+        movement_type=InventoryMovementType.SALE,
+        quantity=3,
+    ).count() == 1
+
+
+@pytest.mark.django_db
+def test_delivery_otp_from_another_order_cannot_deliver_order(
+    customer,
+    active_store,
+    seller_product,
+):
+    from decimal import Decimal
+
+    from apps.cart.models import Cart, CartItem
+    from apps.inventory.models import Inventory
+    from apps.orders.constants import OrderStatus
+    from apps.orders.services.delivery_otp import DeliveryOTPService
+    from apps.orders.services.order import OrderService
+
+    inventory = Inventory.objects.create(
+        seller_product=seller_product,
+        on_hand=20,
+        reserved=0,
+    )
+
+    def create_order():
+        cart = Cart.objects.create(
+            customer=customer,
+            store=active_store,
+        )
+
+        CartItem.objects.create(
+            cart=cart,
+            seller_product=seller_product,
+            quantity=3,
+            unit_price=Decimal("250.00"),
+        )
+
+        return OrderService.create_order(
+            customer=customer,
+            cart=cart,
+            address_snapshot={
+                "city": "Suez",
+                "address": "Test Address",
+            },
+        )
+
+    order_1 = create_order()
+    order_2 = create_order()
+
+    seller_owner = active_store.owner
+
+    for order in (order_1, order_2):
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=OrderStatus.ACCEPTED,
+            actor=seller_owner,
+        )
+
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=OrderStatus.PREPARING,
+            actor=seller_owner,
+        )
+
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=OrderStatus.READY,
+            actor=seller_owner,
+        )
+
+    delivery_user = type(
+        "DeliveryActor",
+        (),
+        {"role": "DELIVERY", "id": None},
+    )()
+
+    OrderService.transition_status(
+        order_id=order_1.id,
+        new_status=OrderStatus.OUT_FOR_DELIVERY,
+        actor=delivery_user,
+    )
+
+    OrderService.transition_status(
+        order_id=order_2.id,
+        new_status=OrderStatus.OUT_FOR_DELIVERY,
+        actor=delivery_user,
+    )
+
+    order_1.refresh_from_db()
+    order_2.refresh_from_db()
+
+    otp_1, code_1 = DeliveryOTPService.create(
+        order=order_1,
+    )
+
+    verified_otp_1 = DeliveryOTPService.verify(
+        order=order_1,
+        otp_id=otp_1.id,
+        code=code_1,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Delivery OTP not found.",
+    ):
+        OrderService.transition_status(
+            order_id=order_2.id,
+            new_status=OrderStatus.DELIVERED,
+            actor=delivery_user,
+            delivery_otp_id=verified_otp_1.id,
+        )
+
+    order_2.refresh_from_db()
+    inventory.refresh_from_db()
+
+    assert order_2.status == OrderStatus.OUT_FOR_DELIVERY
+
+    assert inventory.on_hand == 20
+    assert inventory.reserved == 6
+    assert inventory.available == 14
+
+
+@pytest.mark.django_db
+def test_verified_delivery_otp_cannot_be_reused(
+    customer,
+    active_store,
+    seller_product,
+):
+    from decimal import Decimal
+
+    from apps.cart.models import Cart, CartItem
+    from apps.inventory.models import Inventory
+    from apps.orders.constants import OrderStatus
+    from apps.orders.services.delivery_otp import DeliveryOTPService
+    from apps.orders.services.order import OrderService
+
+    inventory = Inventory.objects.create(
+        seller_product=seller_product,
+        on_hand=10,
+        reserved=0,
+    )
+
+    cart = Cart.objects.create(
+        customer=customer,
+        store=active_store,
+    )
+
+    CartItem.objects.create(
+        cart=cart,
+        seller_product=seller_product,
+        quantity=3,
+        unit_price=Decimal("250.00"),
+    )
+
+    order = OrderService.create_order(
+        customer=customer,
+        cart=cart,
+        address_snapshot={
+            "city": "Suez",
+            "address": "Test Address",
+        },
+    )
+
+    seller_owner = active_store.owner
+
+    for status in (
+        OrderStatus.ACCEPTED,
+        OrderStatus.PREPARING,
+        OrderStatus.READY,
+    ):
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=status,
+            actor=seller_owner,
+        )
+
+    delivery_user = type(
+        "DeliveryActor",
+        (),
+        {"role": "DELIVERY", "id": None},
+    )()
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.OUT_FOR_DELIVERY,
+        actor=delivery_user,
+    )
+
+    order.refresh_from_db()
+
+    otp, code = DeliveryOTPService.create(order=order)
+
+    verified_otp = DeliveryOTPService.verify(
+        order=order,
+        otp_id=otp.id,
+        code=code,
+    )
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.DELIVERED,
+        actor=delivery_user,
+        delivery_otp_id=verified_otp.id,
+    )
+
+    order.refresh_from_db()
+    inventory.refresh_from_db()
+
+    assert order.status == OrderStatus.DELIVERED
+    assert inventory.on_hand == 7
+    assert inventory.reserved == 0
+
+    with pytest.raises(ValueError, match="Invalid order transition"):
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=OrderStatus.DELIVERED,
+            actor=delivery_user,
+            delivery_otp_id=verified_otp.id,
+        )
+
+
+@pytest.mark.django_db
+def test_delivery_otp_delivery_rolls_back_when_inventory_sale_fails(
+    customer,
+    active_store,
+    seller_product,
+    monkeypatch,
+):
+    from decimal import Decimal
+
+    from apps.cart.models import Cart, CartItem
+    from apps.inventory.models import Inventory
+    from apps.orders.constants import OrderStatus
+    from apps.orders.services.delivery_otp import DeliveryOTPService
+    from apps.orders.services.order import OrderService
+
+    inventory = Inventory.objects.create(
+        seller_product=seller_product,
+        on_hand=10,
+        reserved=0,
+    )
+
+    cart = Cart.objects.create(
+        customer=customer,
+        store=active_store,
+    )
+
+    CartItem.objects.create(
+        cart=cart,
+        seller_product=seller_product,
+        quantity=3,
+        unit_price=Decimal("250.00"),
+    )
+
+    order = OrderService.create_order(
+        customer=customer,
+        cart=cart,
+        address_snapshot={
+            "city": "Suez",
+            "address": "Test Address",
+        },
+    )
+
+    seller_owner = active_store.owner
+
+    for status in (
+        OrderStatus.ACCEPTED,
+        OrderStatus.PREPARING,
+        OrderStatus.READY,
+    ):
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=status,
+            actor=seller_owner,
+        )
+
+    delivery_user = type(
+        "DeliveryActor",
+        (),
+        {"role": "DELIVERY", "id": None},
+    )()
+
+    OrderService.transition_status(
+        order_id=order.id,
+        new_status=OrderStatus.OUT_FOR_DELIVERY,
+        actor=delivery_user,
+    )
+
+    order.refresh_from_db()
+
+    otp, code = DeliveryOTPService.create(
+        order=order,
+    )
+
+    verified_otp = DeliveryOTPService.verify(
+        order=order,
+        otp_id=otp.id,
+        code=code,
+    )
+
+    def failing_sell(*args, **kwargs):
+        raise RuntimeError("Simulated inventory sale failure")
+
+    monkeypatch.setattr(
+        "apps.orders.services.order.InventoryService.sell",
+        failing_sell,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="Simulated inventory sale failure",
+    ):
+        OrderService.transition_status(
+            order_id=order.id,
+            new_status=OrderStatus.DELIVERED,
+            actor=delivery_user,
+            delivery_otp_id=verified_otp.id,
         )
 
     order.refresh_from_db()

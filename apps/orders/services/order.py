@@ -21,6 +21,7 @@ class OrderService:
         order_id,
         new_status,
         actor,
+        delivery_otp_id=None,
     ) -> Order:
         order = (
             Order.objects
@@ -67,6 +68,27 @@ class OrderService:
                 )
 
         if new_status == OrderStatus.DELIVERED:
+            if not delivery_otp_id:
+                raise ValueError("Delivery OTP is required.")
+
+            from apps.orders.models import DeliveryOTP
+
+            delivery_otp = (
+                DeliveryOTP.objects
+                .select_for_update()
+                .filter(
+                    id=delivery_otp_id,
+                    order=order,
+                )
+                .first()
+            )
+
+            if delivery_otp is None:
+                raise ValueError("Delivery OTP not found.")
+
+            if delivery_otp.status != "VERIFIED":
+                raise ValueError("Delivery OTP is not verified.")
+
             for item in order.items.select_related("seller_product"):
                 inventory = Inventory.objects.get(
                     seller_product=item.seller_product

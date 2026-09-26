@@ -86,3 +86,30 @@ def order(customer, active_store):
             "address": "Test Address",
         },
     )
+
+
+@pytest.fixture
+def delivery_user(db):
+    return User.objects.create_user(
+        phone="+201001234570",
+        role="DELIVERY",
+        is_active=True,
+    )
+
+
+@pytest.fixture
+def another_delivery_user(db):
+    return User.objects.create_user(
+        phone="+201001234571",
+        role="DELIVERY",
+        is_active=True,
+    )
+
+
+@pytest.fixture
+def admin_user(db):
+    return User.objects.create_user(
+        phone="+201001234572",
+        role="ADMIN",
+        is_active=True,
+    )
