@@ -107,6 +107,13 @@ class OrderService:
             ]
         )
 
+        if new_status == OrderStatus.DELIVERED:
+            from apps.finance.services.commission import CommissionService
+
+            CommissionService.create_for_order(
+                order=order,
+            )
+
         return order
 
     @staticmethod

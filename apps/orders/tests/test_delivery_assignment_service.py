@@ -346,6 +346,8 @@ def test_delivery_can_complete_order_with_verified_otp(
     delivery_user,
     admin_user,
     ready_order,
+    commission_rule,
+
 ):
     assignment = DeliveryAssignmentService.assign(
         order_id=ready_order.id,
@@ -389,6 +391,8 @@ def test_delivery_sells_reserved_inventory(
     admin_user,
     ready_order,
     seller_product,
+    commission_rule,
+    
 ):
     inventory = Inventory.objects.create(
         seller_product=seller_product,
@@ -460,6 +464,8 @@ def test_assigned_delivery_can_complete_delivery_atomically(
     admin_user,
     ready_order,
     seller_product,
+    commission_rule,
+
 ):
     inventory = Inventory.objects.create(
         seller_product=seller_product,

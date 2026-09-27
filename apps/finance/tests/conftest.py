@@ -9,35 +9,27 @@ from apps.catalog.models import Brand, Category, Product
 from apps.finance.models import CommissionRule
 from apps.stores.models import Store
 from apps.stores.models.seller_product import SellerProduct
-from apps.stores.models.store import StoreStatus
 
 
 @pytest.fixture
-def customer(db):
+def finance_owner(db):
     return User.objects.create_user(
-        phone="+201001234568",
-        role="CUSTOMER",
-    )
-
-
-@pytest.fixture
-def seller_owner(db):
-    return User.objects.create_user(
-        phone="+201001234569",
+        phone="+201001234580",
         role="SELLER_OWNER",
+        is_active=True,
     )
 
 
 @pytest.fixture
-def active_store(seller_owner):
+def active_store(db, finance_owner):
     return Store.objects.create(
-        owner=seller_owner,
-        name="Alfa Spare Parts",
-        slug="alfa-spare-parts-orders",
-        phone="+201001234569",
-        address="Suez",
+        owner=finance_owner,
+        name="Finance Test Store",
+        slug="finance-test-store",
+        phone="+201001234580",
+        address="Test Address",
         city="Suez",
-        status=StoreStatus.ACTIVE,
+        status="ACTIVE",
         is_verified=True,
     )
 
@@ -52,22 +44,31 @@ def commission_rule(active_store):
 
 
 @pytest.fixture
+def customer(db):
+    return User.objects.create_user(
+        phone="+201001234581",
+        role="CUSTOMER",
+        is_active=True,
+    )
+
+
+@pytest.fixture
 def active_product(db):
     category = Category.objects.create(
         name="Filters",
-        slug="filters-orders",
+        slug="filters-finance",
     )
 
     brand = Brand.objects.create(
         name="Bosch",
-        slug="bosch-orders",
+        slug="bosch-finance",
     )
 
     return Product.objects.create(
         category=category,
         brand=brand,
         name="Bosch Oil Filter",
-        slug="bosch-oil-filter-orders",
+        slug="bosch-oil-filter-finance",
         product_type="AFTERMARKET",
         is_active=True,
     )
@@ -112,16 +113,7 @@ def delivery_user(db):
 
 
 @pytest.fixture
-def another_delivery_user(db):
-    return User.objects.create_user(
-        phone="+201001234571",
-        role="DELIVERY",
-        is_active=True,
-    )
-
-
-@pytest.fixture
-def admin_user(db):
+def finance_admin(db):
     return User.objects.create_user(
         phone="+201001234572",
         role="ADMIN",

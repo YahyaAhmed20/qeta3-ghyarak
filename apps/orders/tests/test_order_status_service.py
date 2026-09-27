@@ -299,6 +299,7 @@ def test_delivering_order_sells_reserved_inventory(
     customer,
     active_store,
     seller_product,
+    commission_rule,
 ):
     from decimal import Decimal
 
@@ -615,6 +616,8 @@ def test_verified_delivery_otp_allows_delivery_and_sells_inventory(
     customer,
     active_store,
     seller_product,
+    commission_rule,
+
 ):
     from decimal import Decimal
 
@@ -842,6 +845,8 @@ def test_verified_delivery_otp_cannot_be_reused(
     customer,
     active_store,
     seller_product,
+    commission_rule,
+
 ):
     from decimal import Decimal
 

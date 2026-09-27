@@ -44,6 +44,8 @@ def delivery_scenario(
     admin_user,
     ready_order,
     seller_product,
+    commission_rule,
+
 ):
     inventory = Inventory.objects.create(
         seller_product=seller_product,
@@ -98,6 +100,8 @@ def test_assigned_delivery_can_complete_delivery(
     admin_user,
     ready_order,
     seller_product,
+    commission_rule,
+
 ):
     client = APIClient()
 
