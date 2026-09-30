@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "apps.cart.apps.CartConfig",
     "apps.orders.apps.OrdersConfig",
     "apps.finance.apps.FinanceConfig",
+    "apps.reviews.apps.ReviewsConfig",
 
 ]
 REST_FRAMEWORK = {
