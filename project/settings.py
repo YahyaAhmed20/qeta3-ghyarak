@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     "apps.finance.apps.FinanceConfig",
     "apps.reviews.apps.ReviewsConfig",
     "apps.addresses.apps.AddressesConfig",
+    "apps.notifications.apps.NotificationsConfig",
+    "apps.favorites.apps.FavoritesConfig",
 
 ]
 REST_FRAMEWORK = {

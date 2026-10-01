@@ -50,6 +50,10 @@ urlpatterns = [
     "api/addresses/",
     include("apps.addresses.api.urls"),
 ),
+    path(
+    "api/notifications/",
+    include("apps.notifications.api.urls"),
+),
 ]
 
 if settings.DEBUG:
