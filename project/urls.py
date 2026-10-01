@@ -54,6 +54,15 @@ urlpatterns = [
     "api/notifications/",
     include("apps.notifications.api.urls"),
 ),
+    path(
+        "api/favorites/",
+        include("apps.favorites.api.urls"),
+    ),
+    
+    path(
+    "api/v1/vehicles/",
+    include("apps.vehicles.api.urls"),
+),
 ]
 
 if settings.DEBUG:
