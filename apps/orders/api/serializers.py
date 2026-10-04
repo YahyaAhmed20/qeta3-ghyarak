@@ -19,3 +19,20 @@ class DeliveryAssignmentCreateSerializer(serializers.Serializer):
             )
 
         return user
+    
+    
+class CheckoutSerializer(serializers.Serializer):
+    address_id = serializers.UUIDField()
+    notes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=1000,
+    )
+    
+class CheckoutSerializer(serializers.Serializer):
+    address_id = serializers.UUIDField()
+    notes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=1000,
+    )

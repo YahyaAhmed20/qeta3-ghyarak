@@ -165,3 +165,35 @@ def product_compatibility(
         vehicle_variant=vehicle_variant,
         status=CompatibilityStatus.APPROVED,
     )
+    
+    
+@pytest.fixture
+def paginated_marketplace_products(active_store, category, brand):
+    products = []
+
+    for index in range(21):
+        product = Product.objects.create(
+            category=category,
+            brand=brand,
+            name=f"Pagination Product {index}",
+            slug=f"pagination-product-{index}",
+            product_type="AFTERMARKET",
+            is_active=True,
+        )
+
+        seller_product = SellerProduct.objects.create(
+            store=active_store,
+            product=product,
+            price="100.00",
+            is_active=True,
+        )
+
+        Inventory.objects.create(
+            seller_product=seller_product,
+            on_hand=10,
+            reserved=0,
+        )
+
+        products.append(product)
+
+    return products

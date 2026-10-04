@@ -1,11 +1,15 @@
 from django.urls import path
 
 from apps.orders.api.views import (
+    CheckoutAPIView,
     DeliveryAssignmentAcceptAPIView,
     DeliveryAssignmentCancelAPIView,
     DeliveryAssignmentCompleteAPIView,
     DeliveryAssignmentCreateAPIView,
+    OrderListAPIView,
+    OrderDetailAPIView,
 )
+from apps.orders.api.views import CheckoutAPIView
 
 urlpatterns = [
     path(
@@ -28,4 +32,25 @@ urlpatterns = [
         DeliveryAssignmentCompleteAPIView.as_view(),
         name="delivery-assignment-complete",
     ),
+    path(
+    "checkout/",
+    CheckoutAPIView.as_view(),
+    name="checkout",
+),
+    
+    path(
+    "checkout/",
+    CheckoutAPIView.as_view(),
+    name="checkout",
+),
+    path(
+    "",
+    OrderListAPIView.as_view(),
+    name="order-list",
+),
+    path(
+    "<uuid:order_id>/",
+    OrderDetailAPIView.as_view(),
+    name="order-detail",
+),
 ]
