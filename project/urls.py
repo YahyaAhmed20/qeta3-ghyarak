@@ -39,6 +39,10 @@ urlpatterns = [
         include("apps.stores.api.urls"),
     ),
     path(
+    "api/v1/marketplace/",
+    include("apps.marketplace.api.urls"),
+),
+    path(
     "api/v1/orders/",
         include("apps.orders.api.urls"),
     ),
