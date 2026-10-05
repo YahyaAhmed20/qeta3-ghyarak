@@ -2,7 +2,9 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenRefreshView
 
+from django.conf import settings
 from apps.accounts.services.auth import AuthService
 
 from .serializers import (
@@ -10,7 +12,6 @@ from .serializers import (
     VerifyLoginOTPSerializer,
     MeSerializer,
 )
-
 
 class RequestLoginOTPView(APIView):
     permission_classes = [AllowAny]
@@ -21,9 +22,12 @@ class RequestLoginOTPView(APIView):
 
         phone = serializer.validated_data["phone"]
 
-        user, challenge, _code = AuthService.request_login_otp(
-            phone=phone,
-        )
+        user, challenge, code = AuthService.request_login_otp(phone=phone)
+
+        if settings.DEBUG:
+            print(
+                f"[DEV OTP] LOGIN OTP for {phone}: {code}"
+            )
 
         return Response(
             {

@@ -171,3 +171,48 @@ class SellerProductService:
         )
 
         return seller_product
+
+    @staticmethod
+    @transaction.atomic
+    def create_seller_product_with_inventory(
+        *,
+        store,
+        product,
+        price,
+        sale_price=None,
+        seller_sku="",
+        initial_stock=0,
+        user=None,
+    ):
+        if initial_stock < 0:
+            raise ValueError(
+                "Initial stock cannot be negative."
+            )
+
+        seller_product = SellerProductService.create_seller_product(
+            store=store,
+            product=product,
+            price=price,
+            sale_price=sale_price,
+            seller_sku=seller_sku,
+        )
+
+        from apps.inventory.models import Inventory
+
+        inventory = Inventory.objects.create(
+            seller_product=seller_product,
+            on_hand=0,
+            reserved=0,
+        )
+
+        if initial_stock > 0:
+            from apps.inventory.services.inventory import InventoryService
+
+            inventory = InventoryService.restock(
+                inventory_id=inventory.id,
+                quantity=initial_stock,
+                user=user,
+                note="Initial stock when seller product was created.",
+            )
+
+        return seller_product, inventory

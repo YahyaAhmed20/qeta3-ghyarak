@@ -1,0 +1,431 @@
+{% extends "dashboard/seller/base.html" %}
+{% load static %}
+
+
+{% block dashboard_content %}
+
+<div class="products-page">
+
+    <div class="page-header">
+        <div>
+            <h1>المنتجات</h1>
+            <p>إدارة منتجات متجرك وأسعارها ومخزونها</p>
+        </div>
+
+        <button
+    type="button"
+    class="btn-primary"
+    id="open-add-product-modal"
+>
+    <span>+</span> إضافة منتج
+</button>
+    </div>
+
+    <div class="products-toolbar">
+
+        <div class="products-search">
+            <span>⌕</span>
+            <input
+                type="search"
+                id="products-search"
+                placeholder="ابحث عن منتج أو SKU..."
+            >
+        </div>
+
+        <select id="products-status-filter" class="products-filter">
+            <option value="all">كل المنتجات</option>
+            <option value="active">نشطة</option>
+            <option value="inactive">غير نشطة</option>
+        </select>
+
+        <div class="products-count">
+            <strong id="products-count">0</strong>
+            <span>منتج</span>
+        </div>
+
+    </div>
+
+    <div class="products-card">
+
+        <div class="products-table-wrapper">
+
+            <table class="products-table">
+
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>SKU</th>
+                        <th>السعر</th>
+                        <th>سعر البيع</th>
+                        <th>المخزون</th>
+                        <th>الحالة</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody id="products-table-body">
+
+                    <tr>
+                        <td colspan="7" class="products-loading">
+                            جاري تحميل المنتجات...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="product-modal" id="add-product-modal" hidden>
+        <div class="product-modal-overlay" data-close-add-modal></div>
+
+        <div class="product-modal-content add-product-modal-content" role="dialog" aria-modal="true">
+
+            <div class="product-modal-header">
+                <div>
+                    <h2>إضافة منتج</h2>
+                    <p>أضف منتجًا من كتالوج قطع غيارك إلى متجرك</p>
+                </div>
+
+                <button
+                    type="button"
+                    class="product-modal-close"
+                    data-close-add-modal
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="add-product-body">
+
+                <!-- Product Search -->
+                <div class="product-form-group">
+                    <label for="catalog-product-search">
+                        اختر المنتج
+                    </label>
+
+                    <div class="catalog-search-wrapper">
+                        <span class="catalog-search-icon">⌕</span>
+
+                        <input
+                            type="search"
+                            id="catalog-product-search"
+                            placeholder="ابحث باسم المنتج..."
+                            autocomplete="off"
+                        >
+                    </div>
+                </div>
+
+                <!-- Catalog Products -->
+                <div class="catalog-products-section">
+
+                    <div class="catalog-products-title">
+                        <span>منتجات الكتالوج</span>
+                        <span id="catalog-products-count">0</span>
+                    </div>
+
+                    <div
+                        id="catalog-products-list"
+                        class="catalog-products-list"
+                    >
+                        <div class="catalog-products-loading">
+                            جاري تحميل المنتجات...
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Selected Product -->
+                <div
+                    id="selected-catalog-product"
+                    class="selected-catalog-product"
+                    hidden
+                >
+
+                    <div class="selected-product-header">
+                        <div>
+                            <span class="selected-product-label">
+                                المنتج المختار
+                            </span>
+
+                            <h3 id="selected-product-name">—</h3>
+
+                            <p id="selected-product-meta">—</p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="change-selected-product"
+                            id="change-selected-product"
+                        >
+                            تغيير
+                        </button>
+                    </div>
+
+                    <div class="product-form-row">
+
+                        <div class="product-form-group">
+                            <label for="add-seller-sku">
+                                SKU المتجر
+                            </label>
+
+                            <input
+                                type="text"
+                                id="add-seller-sku"
+                                placeholder="مثال: TRW-FBP-001"
+                            >
+                        </div>
+
+                        <div class="product-form-group">
+                            <label for="add-stock">
+                                الكمية الابتدائية
+                            </label>
+
+                            <input
+                                type="number"
+                                id="add-stock"
+                                min="0"
+                                step="1"
+                                value="0"
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="product-form-row">
+
+                        <div class="product-form-group">
+                            <label for="add-price">
+                                السعر الأساسي
+                            </label>
+
+                            <div class="product-input-with-suffix">
+                                <input
+                                    type="number"
+                                    id="add-price"
+                                    min="0.01"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    required
+                                >
+                                <span>ج.م</span>
+                            </div>
+                        </div>
+
+                        <div class="product-form-group">
+                            <label for="add-sale-price">
+                                سعر البيع
+                            </label>
+
+                            <div class="product-input-with-suffix">
+                                <input
+                                    type="number"
+                                    id="add-sale-price"
+                                    min="0.01"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                >
+                                <span>ج.م</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="add-product-error"
+                    class="product-form-error"
+                    hidden
+                ></div>
+
+            </div>
+
+            <div class="product-modal-footer">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    data-close-add-modal
+                >
+                    إلغاء
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    id="add-product-submit"
+                    disabled
+                >
+                    إضافة المنتج
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="product-modal" id="edit-product-modal" hidden>
+        <div class="product-modal-overlay" data-close-modal></div>
+
+        <div class="product-modal-content" role="dialog" aria-modal="true">
+            <div class="product-modal-header">
+                <div>
+                    <h2>تعديل المنتج</h2>
+                    <p id="edit-product-name">—</p>
+                </div>
+
+                <button type="button" class="product-modal-close" data-close-modal>
+                    ×
+                </button>
+            </div>
+
+            <form id="edit-product-form">
+
+                <div class="product-form-group">
+                    <label for="edit-seller-sku">SKU</label>
+                    <input
+                        type="text"
+                        id="edit-seller-sku"
+                        name="seller_sku"
+                        placeholder="مثال: BOSCH-OF-001"
+                    >
+                </div>
+
+                <div class="product-form-row">
+
+                    <div class="product-form-group">
+                        <label for="edit-price">السعر الأساسي</label>
+                        <div class="product-input-with-suffix">
+                            <input
+                                type="number"
+                                id="edit-price"
+                                name="price"
+                                min="0.01"
+                                step="0.01"
+                                required
+                            >
+                            <span>ج.م</span>
+                        </div>
+                    </div>
+
+                    <div class="product-form-group">
+                        <label for="edit-sale-price">سعر البيع</label>
+                        <div class="product-input-with-suffix">
+                            <input
+                                type="number"
+                                id="edit-sale-price"
+                                name="sale_price"
+                                min="0.01"
+                                step="0.01"
+                            >
+                            <span>ج.م</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="product-form-group">
+                    <label for="edit-status">الحالة</label>
+
+                    <select id="edit-status" name="is_active">
+                        <option value="true">نشط</option>
+                        <option value="false">غير نشط</option>
+                    </select>
+                </div>
+
+                <div id="edit-product-error" class="product-form-error" hidden></div>
+
+                <div class="product-modal-footer">
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        data-close-modal
+                    >
+                        إلغاء
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                        id="save-product-btn"
+                    >
+                        حفظ التعديلات
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Inventory Movements Modal -->
+    <div class="product-modal" id="inventory-movements-modal" hidden>
+        <div
+            class="product-modal-overlay"
+            data-close-movements-modal
+        ></div>
+
+        <div
+            class="product-modal-content inventory-movements-modal-content"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div class="product-modal-header">
+                <div>
+                    <h2>حركات المخزون</h2>
+                    <p id="inventory-movements-product-name">—</p>
+                </div>
+
+                <button
+                    type="button"
+                    class="product-modal-close"
+                    data-close-movements-modal
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="inventory-movements-body">
+                <div
+                    id="inventory-movements-loading"
+                    class="products-loading"
+                    hidden
+                >
+                    جاري تحميل حركات المخزون...
+                </div>
+
+                <div
+                    id="inventory-movements-error"
+                    class="product-form-error"
+                    hidden
+                ></div>
+
+                <div
+                    id="inventory-movements-empty"
+                    class="catalog-products-empty"
+                    hidden
+                >
+                    لا توجد حركات مخزون لهذا المنتج.
+                </div>
+
+                <div
+                    id="inventory-movements-list"
+                    class="inventory-movements-list"
+                ></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'dashboard/js/products.js' %}"></script>
+{% endblock %}

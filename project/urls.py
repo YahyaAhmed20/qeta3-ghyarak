@@ -16,22 +16,41 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from apps.dashboard.views import seller_dashboard_view
-
+from apps.dashboard.views import (
+    seller_dashboard_view,
+    seller_login_view,
+)
 from project import settings
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.dashboard.views import (
+    seller_dashboard_view,
+    seller_login_view,
+    seller_products_view,
+)
 urlpatterns = [
     path(
     "dashboard/",
     seller_dashboard_view,
     name="seller-dashboard",
 ),
+    
+    
     path("admin/", admin.site.urls),
     path(
         "api/v1/",
         include("apps.accounts.api.urls"),
     ),
+    path(
+    "seller/login/",
+    seller_login_view,
+    name="seller-login",
+),
+    path(
+    "dashboard/products/",
+    seller_products_view,
+    name="seller-products",
+),
     path(
         "api/v1/catalog/",
         include("apps.catalog.api.urls"),
@@ -80,6 +99,10 @@ urlpatterns = [
     path(
     "api/v1/dashboard/",
     include("apps.dashboard.api.urls"),
+),
+    path(
+    "api/v1/inventory/",
+    include("apps.inventory.api.urls"),
 ),
     
 ]

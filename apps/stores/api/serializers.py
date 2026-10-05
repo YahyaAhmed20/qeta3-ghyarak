@@ -73,6 +73,13 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 class SellerProductSerializer(serializers.ModelSerializer):
+    initial_stock = serializers.IntegerField(
+        write_only=True,
+        required=False,
+        min_value=0,
+        default=0,
+    )
+
     class Meta:
         model = SellerProduct
         fields = [
@@ -82,6 +89,7 @@ class SellerProductSerializer(serializers.ModelSerializer):
             "seller_sku",
             "price",
             "sale_price",
+            "initial_stock",
             "is_active",
             "created_at",
             "updated_at",
@@ -102,11 +110,19 @@ class SellerProductSerializer(serializers.ModelSerializer):
                 {"detail": "Store context is required."}
             )
 
+        initial_stock = validated_data.pop("initial_stock", 0)
+
         try:
-            return SellerProductService.create_seller_product(
-                store=store,
-                **validated_data,
+            seller_product, inventory = (
+                SellerProductService.create_seller_product_with_inventory(
+                    store=store,
+                    initial_stock=initial_stock,
+                    user=self.context["request"].user,
+                    **validated_data,
+                )
             )
+
+            return seller_product
         except ValueError as exc:
             raise serializers.ValidationError(
                 {"detail": str(exc)}
@@ -115,3 +131,69 @@ class SellerProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 exc.message_dict
             ) from exc
+
+
+class SellerDashboardProductSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(
+        source="product.name",
+        read_only=True,
+    )
+    brand_name = serializers.CharField(
+        source="product.brand.name",
+        read_only=True,
+        allow_null=True,
+    )
+    category_name = serializers.CharField(
+        source="product.category.name",
+        read_only=True,
+    )
+    stock = serializers.IntegerField(
+        source="inventory.on_hand",
+        read_only=True,
+    )
+    reserved_stock = serializers.IntegerField(
+        source="inventory.reserved",
+        read_only=True,
+    )
+    available_stock = serializers.IntegerField(
+        source="inventory.available",
+        read_only=True,
+    )
+    inventory_id = serializers.UUIDField(
+        source="inventory.id",
+        read_only=True,
+    )
+
+    class Meta:
+        model = SellerProduct
+        fields = [
+            "id",
+            "product",
+            "product_name",
+            "brand_name",
+            "category_name",
+            "seller_sku",
+            "price",
+            "sale_price",
+            "stock",
+            "reserved_stock",
+            "available_stock",
+            "inventory_id",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "product",
+            "product_name",
+            "brand_name",
+            "category_name",
+            "stock",
+            "reserved_stock",
+            "available_stock",
+            "inventory_id",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]

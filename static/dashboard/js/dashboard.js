@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const dashboardContent = document.getElementById("dashboard-content");
+
+    if (!dashboardContent) {
+        return;
+    }
+
     loadDashboardOverview();
 });
 
@@ -9,24 +15,8 @@ async function loadDashboardOverview() {
     const error = document.getElementById("dashboard-error");
 
     try {
-        const token =
-            localStorage.getItem("qeta3_access_token") ||
-            sessionStorage.getItem("qeta3_access_token");
-
-        const headers = {
-            "Content-Type": "application/json",
-        };
-
-        if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-        }
-
-        const response = await fetch(
-            "/api/v1/dashboard/overview/",
-            {
-                method: "GET",
-                headers,
-            }
+        const response = await QETA3_API.get(
+            "/api/v1/dashboard/overview/"
         );
 
         if (response.status === 401) {
@@ -64,7 +54,6 @@ async function loadDashboardOverview() {
         );
     }
 }
-
 
 function renderDashboard(data) {
 

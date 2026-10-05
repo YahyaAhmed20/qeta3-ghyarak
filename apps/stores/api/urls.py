@@ -8,6 +8,7 @@ from apps.stores.api.views import (
     SellerProductDetailAPIView,
     SellerProductListCreateAPIView,
     StoreCreateAPIView,
+    SellerDashboardProductListAPIView,
 )
 
 urlpatterns = [
@@ -36,6 +37,11 @@ urlpatterns = [
         SellerProductDeactivateAPIView.as_view(),
         name="seller-product-deactivate",
     ),
+    path(
+    "dashboard/products/",
+    SellerDashboardProductListAPIView.as_view(),
+    name="seller-dashboard-products",
+),
     path(
         "products/<uuid:id>/activate/",
         SellerProductActivateAPIView.as_view(),

@@ -1,7 +1,11 @@
 from django.urls import path
 
-from .views import MeView, RequestLoginOTPView,VerifyLoginOTPView
-
+from .views import (
+    MeView,
+    RequestLoginOTPView,
+    VerifyLoginOTPView,
+    TokenRefreshView,
+)
 
 
 app_name = "accounts"
@@ -22,5 +26,10 @@ urlpatterns = [
         "auth/me/",
         MeView.as_view(),
         name="me",
+    ),
+    path(
+        "auth/token/refresh/",
+        TokenRefreshView.as_view(),
+        name="token-refresh",
     ),
 ]

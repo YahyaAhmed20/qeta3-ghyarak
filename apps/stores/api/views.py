@@ -9,7 +9,11 @@ from apps.stores.api.serializers import (
 )
 from apps.stores.models import SellerProduct, Store, StoreStatus
 from apps.stores.services.seller_product import SellerProductService
-
+from apps.stores.api.serializers import (
+    SellerDashboardProductSerializer,
+    SellerProductSerializer,
+    StoreSerializer,
+)
 
 class StoreCreateAPIView(generics.CreateAPIView):
     serializer_class = StoreSerializer
@@ -86,6 +90,26 @@ class SellerProductListCreateAPIView(generics.ListCreateAPIView):
         context = super().get_serializer_context()
         context["store"] = self.get_store()
         return context
+    
+class SellerDashboardProductListAPIView(generics.ListAPIView):
+    serializer_class = SellerDashboardProductSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            SellerProduct.objects
+            .filter(
+                store__owner=self.request.user,
+            )
+            .select_related(
+                "store",
+                "product",
+                "product__category",
+                "product__brand",
+                "inventory",
+            )
+            .order_by("product__name")
+        )
 
 
 class SellerProductDetailAPIView(generics.RetrieveUpdateAPIView):

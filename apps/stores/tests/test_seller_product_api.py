@@ -664,3 +664,48 @@ class TestSellerProductCreateAPI:
         assert response.status_code == 200
         assert len(response.data) == 1
         assert response.data[0]["is_active"] is False
+        
+    def test_create_seller_product_with_initial_stock(
+        self,
+        client,
+        seller_owner,
+        active_store,
+        active_product,
+    ):
+        client.force_authenticate(user=seller_owner)
+
+        response = client.post(
+            "/api/v1/stores/products/",
+            {
+                "product": str(active_product.id),
+                "seller_sku": "BOSCH-STOCK-001",
+                "price": "450.00",
+                "sale_price": "400.00",
+                "initial_stock": 10,
+            },
+            format="json",
+        )
+
+        assert response.status_code == 201
+
+        seller_product = SellerProduct.objects.get(
+            id=response.data["id"],
+        )
+
+        from apps.inventory.models import Inventory
+        from apps.inventory.constants import InventoryMovementType
+        from apps.inventory.models import InventoryMovement
+
+        inventory = Inventory.objects.get(
+            seller_product=seller_product,
+        )
+
+        assert inventory.on_hand == 10
+        assert inventory.reserved == 0
+        assert inventory.available == 10
+
+        assert InventoryMovement.objects.filter(
+            inventory=inventory,
+            movement_type=InventoryMovementType.RESTOCK,
+            quantity=10,
+        ).exists()

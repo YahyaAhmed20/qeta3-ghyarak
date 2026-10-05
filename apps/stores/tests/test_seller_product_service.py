@@ -3,6 +3,11 @@ from decimal import Decimal
 import pytest
 from django.core.exceptions import ValidationError
 
+from decimal import Decimal
+
+from apps.inventory.constants import InventoryMovementType
+from apps.inventory.models import InventoryMovement
+from apps.stores.services.seller_product import SellerProductService
 from apps.stores.models import SellerProduct, Store, StoreStatus
 from apps.stores.services.seller_product import SellerProductService
 
@@ -364,3 +369,42 @@ class TestSellerProductService:
                 seller_product_id=seller_product.id,
                 store=active_store,
             )
+            
+
+
+    @pytest.mark.django_db
+    @pytest.mark.django_db
+    def test_create_seller_product_with_inventory(
+        self,
+        active_store,
+        active_product,
+        seller_owner,
+    ):
+        seller_product, inventory = (
+            SellerProductService.create_seller_product_with_inventory(
+                store=active_store,
+                product=active_product,
+                price=Decimal("1250.00"),
+                sale_price=Decimal("1150.00"),
+                seller_sku="TRW-FBP-TEST",
+                initial_stock=8,
+                user=seller_owner,
+            )
+        )
+
+        assert seller_product.store == active_store
+        assert seller_product.product == active_product
+        assert seller_product.seller_sku == "TRW-FBP-TEST"
+        assert seller_product.price == Decimal("1250.00")
+        assert seller_product.sale_price == Decimal("1150.00")
+
+        assert inventory.seller_product == seller_product
+        assert inventory.on_hand == 8
+        assert inventory.reserved == 0
+        assert inventory.available == 8
+
+        assert InventoryMovement.objects.filter(
+            inventory=inventory,
+            movement_type=InventoryMovementType.RESTOCK,
+            quantity=8,
+        ).exists()
