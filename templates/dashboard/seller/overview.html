@@ -1,0 +1,244 @@
+{% extends "dashboard/seller/base.html" %}
+
+{% block page_title %}
+    الرئيسية
+{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="dashboard-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2>مرحبًا بك 👋</h2>
+            <p id="store-description">
+                إدارة متجرك وطلباتك بسهولة.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- Loading -->
+    <div id="dashboard-loading" class="dashboard-loading">
+        جاري تحميل بيانات المتجر...
+    </div>
+
+
+    <!-- Error -->
+    <div
+        id="dashboard-error"
+        class="dashboard-alert dashboard-alert-danger d-none"
+    >
+        حدث خطأ أثناء تحميل بيانات لوحة التحكم.
+    </div>
+
+
+    <!-- Dashboard Content -->
+    <div id="dashboard-content" class="d-none">
+
+        <!-- KPI Cards -->
+        <section class="dashboard-stats">
+
+            <!-- Total Orders -->
+            <div class="stat-card">
+                <div class="stat-card-icon stat-icon-orders">
+                    📦
+                </div>
+
+                <div class="stat-card-content">
+                    <span>إجمالي الطلبات</span>
+                    <strong id="stat-total-orders">0</strong>
+                </div>
+            </div>
+
+
+            <!-- Today Orders -->
+            <div class="stat-card">
+                <div class="stat-card-icon stat-icon-today">
+                    🛒
+                </div>
+
+                <div class="stat-card-content">
+                    <span>طلبات اليوم</span>
+                    <strong id="stat-today-orders">0</strong>
+                </div>
+            </div>
+
+
+            <!-- Pending Orders -->
+            <div class="stat-card">
+                <div class="stat-card-icon stat-icon-pending">
+                    ⏳
+                </div>
+
+                <div class="stat-card-content">
+                    <span>طلبات قيد التنفيذ</span>
+                    <strong id="stat-pending-orders">0</strong>
+                </div>
+            </div>
+
+
+            <!-- Delivered -->
+            <div class="stat-card">
+                <div class="stat-card-icon stat-icon-delivered">
+                    ✓
+                </div>
+
+                <div class="stat-card-content">
+                    <span>طلبات مكتملة</span>
+                    <strong id="stat-delivered-orders">0</strong>
+                </div>
+            </div>
+
+
+            <!-- Today's Sales -->
+            <div class="stat-card stat-card-money">
+                <div class="stat-card-icon stat-icon-sales">
+                    💰
+                </div>
+
+                <div class="stat-card-content">
+                    <span>مبيعات اليوم</span>
+                    <strong>
+                        <span id="stat-today-sales">0.00</span>
+                        <small>ج.م</small>
+                    </strong>
+                </div>
+            </div>
+
+
+            <!-- Total Sales -->
+            <div class="stat-card stat-card-money">
+                <div class="stat-card-icon stat-icon-total-sales">
+                    📈
+                </div>
+
+                <div class="stat-card-content">
+                    <span>إجمالي المبيعات</span>
+                    <strong>
+                        <span id="stat-total-sales">0.00</span>
+                        <small>ج.م</small>
+                    </strong>
+                </div>
+            </div>
+
+
+            <!-- Products -->
+            <div class="stat-card">
+                <div class="stat-card-icon stat-icon-products">
+                    🔧
+                </div>
+
+                <div class="stat-card-content">
+                    <span>المنتجات النشطة</span>
+                    <strong id="stat-total-products">0</strong>
+                </div>
+            </div>
+
+
+            <!-- Out of Stock -->
+            <div class="stat-card">
+                <div class="stat-card-icon stat-icon-stock">
+                    ⚠
+                </div>
+
+                <div class="stat-card-content">
+                    <span>نفد من المخزون</span>
+                    <strong id="stat-out-of-stock">0</strong>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Secondary Sections -->
+        <section class="dashboard-secondary">
+
+            <!-- Settlements -->
+            <div class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h3>التسويات المالية</h3>
+                        <span>حالة مستحقات المتجر</span>
+                    </div>
+                </div>
+
+                <div class="settlement-grid">
+
+                    <div class="settlement-item">
+                        <span>معلقة</span>
+                        <strong>
+                            <span id="settlement-pending">0.00</span>
+                            ج.م
+                        </strong>
+                    </div>
+
+                    <div class="settlement-item">
+                        <span>جاهزة</span>
+                        <strong>
+                            <span id="settlement-ready">0.00</span>
+                            ج.م
+                        </strong>
+                    </div>
+
+                    <div class="settlement-item">
+                        <span>قيد المعالجة</span>
+                        <strong>
+                            <span id="settlement-processing">0.00</span>
+                            ج.م
+                        </strong>
+                    </div>
+
+                    <div class="settlement-item">
+                        <span>مدفوعة</span>
+                        <strong>
+                            <span id="settlement-paid">0.00</span>
+                            ج.م
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Store Information -->
+            <div class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h3>بيانات المتجر</h3>
+                        <span>الحالة الحالية للمتجر</span>
+                    </div>
+                </div>
+
+                <div class="store-status">
+
+                    <div>
+                        <span>اسم المتجر</span>
+                        <strong id="store-name">—</strong>
+                    </div>
+
+                    <div>
+                        <span>الحالة</span>
+                        <strong id="store-status">—</strong>
+                    </div>
+
+                    <div>
+                        <span>التحقق</span>
+                        <strong id="store-verification">—</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}

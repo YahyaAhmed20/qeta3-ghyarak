@@ -1,0 +1,327 @@
+/* =========================================================
+   DASHBOARD STATS
+   ========================================================= */
+
+.dashboard-stats {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 24px;
+}
+
+
+.stat-card {
+    background: var(--white);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-lg);
+
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.stat-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-md);
+}
+
+
+.stat-card-icon {
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+
+.stat-icon-orders {
+    background: #eff6ff;
+}
+
+.stat-icon-today {
+    background: #f0fdf4;
+}
+
+.stat-icon-pending {
+    background: #fffbeb;
+}
+
+.stat-icon-delivered {
+    background: #ecfdf5;
+}
+
+.stat-icon-sales {
+    background: #f0fdf4;
+}
+
+.stat-icon-total-sales {
+    background: #eef2ff;
+}
+
+.stat-icon-products {
+    background: #f5f3ff;
+}
+
+.stat-icon-stock {
+    background: #fef2f2;
+}
+
+
+.stat-card-content {
+    min-width: 0;
+}
+
+
+.stat-card-content span {
+    display: block;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+    margin-bottom: 7px;
+}
+
+
+.stat-card-content strong {
+    display: block;
+
+    color: var(--text-primary);
+
+    font-size: 24px;
+
+    line-height: 1.1;
+
+    font-weight: 800;
+}
+
+
+.stat-card-content strong small {
+    font-size: 12px;
+
+    font-weight: 500;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   DASHBOARD PANELS
+   ========================================================= */
+
+.dashboard-secondary {
+    display: grid;
+
+    grid-template-columns: 1.5fr 1fr;
+
+    gap: 20px;
+}
+
+
+.dashboard-panel {
+    background: var(--white);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-lg);
+
+    padding: 24px;
+
+    box-shadow: var(--shadow-sm);
+}
+
+
+.panel-header {
+    padding-bottom: 18px;
+
+    margin-bottom: 20px;
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+.panel-header h3 {
+    margin: 0 0 5px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+
+.panel-header span {
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SETTLEMENTS
+   ========================================================= */
+
+.settlement-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+}
+
+
+.settlement-item {
+    padding: 16px;
+
+    background: var(--dashboard-bg);
+
+    border-radius: var(--radius-md);
+}
+
+
+.settlement-item span {
+    display: block;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+
+    margin-bottom: 7px;
+}
+
+
+.settlement-item strong {
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   STORE STATUS
+   ========================================================= */
+
+.store-status {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+
+.store-status > div {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.store-status span {
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+.store-status strong {
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   LOADING / ALERTS
+   ========================================================= */
+
+.dashboard-loading {
+    background: var(--white);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-lg);
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: var(--text-secondary);
+}
+
+
+.dashboard-alert {
+    padding: 16px 18px;
+
+    border-radius: var(--radius-md);
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+}
+
+
+.dashboard-alert-danger {
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+
+    color: #991b1b;
+}
+
+
+/* =========================================================
+   RESPONSIVE DASHBOARD
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .dashboard-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-secondary {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 576px) {
+
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .settlement-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card-content strong {
+        font-size: 21px;
+    }
+}

@@ -13,6 +13,9 @@ ALLOWED_ROLE_TRANSITIONS = {
         OrderStatus.PREPARING: {
             OrderStatus.READY,
         },
+        OrderStatus.READY: {
+            OrderStatus.OUT_FOR_DELIVERY,
+        },
     },
 
     "SELLER_MANAGER": {
@@ -25,6 +28,9 @@ ALLOWED_ROLE_TRANSITIONS = {
         },
         OrderStatus.PREPARING: {
             OrderStatus.READY,
+        },
+        OrderStatus.READY: {
+            OrderStatus.OUT_FOR_DELIVERY,
         },
     },
 

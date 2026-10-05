@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
-
+from apps.orders.models import DeliveryAssignment
+from apps.orders.services.delivery_assignment import DeliveryAssignmentService
 import pytest
 from django.utils import timezone
 
@@ -84,6 +85,30 @@ def seller_product(active_store, active_product):
 
 
 @pytest.fixture
+def order_item(order, seller_product):
+    from apps.orders.models import OrderItem
+
+    return OrderItem.objects.create(
+        order=order,
+        seller_product=seller_product,
+        product_name_snapshot=seller_product.product.name,
+        part_number_snapshot="BOSCH-OF-001",
+        unit_price=Decimal("250.00"),
+        discount=Decimal("0.00"),
+        quantity=1,
+    )
+    
+@pytest.fixture
+def inventory(seller_product):
+    from apps.inventory.models.inventory import Inventory
+
+    return Inventory.objects.create(
+        seller_product=seller_product,
+        on_hand=1,
+        reserved=1,
+    )
+
+@pytest.fixture
 def order(customer, active_store):
     from apps.orders.models import Order
 
@@ -99,6 +124,16 @@ def order(customer, active_store):
             "city": "Suez",
             "address": "Test Address",
         },
+    )
+@pytest.fixture
+def delivery_assignment(order, delivery_user, seller_owner):
+    order.status = "READY"
+    order.save(update_fields=["status", "updated_at"])
+
+    return DeliveryAssignmentService.assign(
+        order_id=order.id,
+        delivery_user=delivery_user,
+        actor=seller_owner,
     )
 
 
@@ -127,3 +162,5 @@ def admin_user(db):
         role="ADMIN",
         is_active=True,
     )
+    
+    

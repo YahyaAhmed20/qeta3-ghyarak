@@ -62,7 +62,6 @@ def test_allowed_role_transitions(
         ("DELIVERY", OrderStatus.CREATED, OrderStatus.ACCEPTED),
         ("DELIVERY", OrderStatus.ACCEPTED, OrderStatus.PREPARING),
 
-        ("SELLER_OWNER", OrderStatus.READY, OrderStatus.OUT_FOR_DELIVERY),
         ("SELLER_STAFF", OrderStatus.CREATED, OrderStatus.ACCEPTED),
 
         ("ADMIN", OrderStatus.REFUNDED, OrderStatus.ACCEPTED),
