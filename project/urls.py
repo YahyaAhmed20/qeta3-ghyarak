@@ -132,7 +132,36 @@ urlpatterns = [
     ),
     name="customer-cart",
 ),
+    path(
+    "checkout/",
+    TemplateView.as_view(
+        template_name="customer/checkout.html"
+    ),
+    name="customer-checkout",
+),
     
+    path(
+    "orders/success/<uuid:order_id>/",
+    TemplateView.as_view(
+        template_name="customer/order_success.html"
+    ),
+    name="customer-order-success",
+),
+    path(
+    "orders/",
+    TemplateView.as_view(
+        template_name="customer/orders.html"
+    ),
+    name="customer-orders",
+),
+    
+    path(
+    "orders/<uuid:order_id>/",
+    TemplateView.as_view(
+        template_name="customer/order_detail.html"
+    ),
+    name="customer-order-detail",
+),
     
 ]
 

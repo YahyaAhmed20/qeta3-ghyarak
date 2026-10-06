@@ -68,6 +68,106 @@
         border-radius: 10px;
         padding: 15px;
     }
+
+    /* Cart Success Modal */
+
+    .cart-success-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+
+        display: none;
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+    }
+
+    .cart-success-modal.show {
+        display: flex;
+    }
+
+    .cart-success-box {
+        width: min(460px, 100%);
+
+        background: #ffffff;
+        border-radius: 20px;
+
+        padding: 32px;
+
+        text-align: center;
+
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+
+        animation: cartModalIn 0.25s ease-out;
+    }
+
+    .cart-success-icon {
+        width: 64px;
+        height: 64px;
+
+        margin: 0 auto 18px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #198754;
+        color: #ffffff;
+
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .cart-success-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+
+        margin-bottom: 8px;
+    }
+
+    .cart-success-product {
+        color: #6c757d;
+        margin-bottom: 24px;
+    }
+
+    .cart-success-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .cart-success-actions .btn {
+        flex: 1;
+        padding: 11px 15px;
+        font-weight: 600;
+    }
+
+    @keyframes cartModalIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .cart-success-box {
+            padding: 25px 20px;
+        }
+
+        .cart-success-actions {
+            flex-direction: column;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -207,8 +307,54 @@
         </div>
     </main>
 
+    <!-- Cart Success Modal -->
+    <div
+        id="cart-success-modal"
+        class="cart-success-modal"
+        aria-hidden="true"
+    >
+        <div class="cart-success-box">
+
+            <div class="cart-success-icon">
+                ✓
+            </div>
+
+            <div class="cart-success-title">
+                تمت إضافة المنتج إلى السلة
+            </div>
+
+            <div
+                id="cart-success-product"
+                class="cart-success-product"
+            >
+                المنتج
+            </div>
+
+            <div class="cart-success-actions">
+
+                <button
+                    type="button"
+                    id="continue-shopping-modal-btn"
+                    class="btn btn-outline-dark"
+                >
+                    متابعة التسوق
+                </button>
+
+                <a
+                    href="/cart/"
+                    class="btn btn-dark"
+                >
+                    الذهاب إلى السلة
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script src="{% static 'customer/js/product_detail.js' %}"></script>
 {% endblock %}

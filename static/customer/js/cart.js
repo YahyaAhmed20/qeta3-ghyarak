@@ -28,23 +28,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     async function apiRequest(url, options = {}) {
-        const token = getToken();
+        let accessToken = getToken();
 
-        if (!token) {
+        if (!accessToken) {
             window.location.href = "/login/";
             return null;
         }
 
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-                ...(options.headers || {}),
-            },
-        });
+        async function sendRequest(token) {
+            return fetch(url, {
+                ...options,
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    ...(options.headers || {}),
+                },
+            });
+        }
 
-        if (response.status === 401) {
+        let response = await sendRequest(accessToken);
+
+        if (response.status !== 401) {
+            return response;
+        }
+
+        const refreshToken = localStorage.getItem(
+            "qeta3_customer_refresh_token"
+        );
+
+        if (!refreshToken) {
             localStorage.removeItem(
                 "qeta3_customer_access_token"
             );
@@ -57,7 +69,58 @@ document.addEventListener("DOMContentLoaded", async () => {
             return null;
         }
 
-        return response;
+        try {
+            const refreshResponse = await fetch(
+                "/api/v1/auth/token/refresh/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        refresh: refreshToken,
+                    }),
+                }
+            );
+
+            const refreshData = await refreshResponse.json();
+
+            if (!refreshResponse.ok || !refreshData.access) {
+                throw new Error("Refresh token expired.");
+            }
+
+            localStorage.setItem(
+                "qeta3_customer_access_token",
+                refreshData.access
+            );
+
+            if (refreshData.refresh) {
+                localStorage.setItem(
+                    "qeta3_customer_refresh_token",
+                    refreshData.refresh
+                );
+            }
+
+            response = await sendRequest(
+                refreshData.access
+            );
+
+            return response;
+
+        } catch (error) {
+            console.error("Token refresh error:", error);
+
+            localStorage.removeItem(
+                "qeta3_customer_access_token"
+            );
+
+            localStorage.removeItem(
+                "qeta3_customer_refresh_token"
+            );
+
+            window.location.href = "/login/";
+            return null;
+        }
     }
 
     async function loadCart() {
@@ -322,6 +385,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             showError(error.message);
         }
     });
+
+
+    const checkoutBtn = document.getElementById("checkout-btn");
+
+    checkoutBtn.addEventListener("click", () => {
+        window.location.href = "/checkout/";
+    });
+
 
     await loadCart();
 });

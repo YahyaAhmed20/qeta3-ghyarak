@@ -189,6 +189,30 @@ function renderSellers(sellers) {
 }
 
 
+function showCartModal(productName) {
+    const modal = document.getElementById("cart-success-modal");
+    const productElement = document.getElementById(
+        "cart-success-product"
+    );
+    const continueButton = document.getElementById(
+        "continue-shopping-modal-btn"
+    );
+
+    if (!modal || !productElement || !continueButton) {
+        return;
+    }
+
+    productElement.textContent = productName;
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+
+    continueButton.onclick = () => {
+    window.location.href = "/";
+};
+}
+
+
 document.addEventListener("click", async (event) => {
     const button = event.target.closest(".add-to-cart-btn");
 
@@ -202,29 +226,87 @@ document.addEventListener("click", async (event) => {
     button.textContent = "جاري الإضافة...";
 
     try {
-        const customerToken = localStorage.getItem(
-    "qeta3_customer_access_token"
-);
+        let customerToken = localStorage.getItem(
+            "qeta3_customer_access_token"
+        );
 
-if (!customerToken) {
-    window.location.href = "/login/";
-    return;
-}
+        if (!customerToken) {
+            window.location.href = "/login/";
+            return;
+        }
 
-const response = await fetch(
-    "/api/v1/cart/items/",
-    {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${customerToken}`,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            seller_product_id: sellerProductId,
-            quantity: 1,
-        }),
-    }
-);
+        async function addToCart(token) {
+            return fetch("/api/v1/cart/items/", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    seller_product_id: sellerProductId,
+                    quantity: 1,
+                }),
+            });
+        }
+
+        let response = await addToCart(customerToken);
+
+        // Access token expired → try refresh
+        if (response.status === 401) {
+            console.log("🔄 Access token expired - starting refresh...");
+
+            const refreshToken = localStorage.getItem(
+                "qeta3_customer_refresh_token"
+            );
+
+            console.log("🔑 Refresh token exists:", !!refreshToken);
+
+            if (!refreshToken) {
+                localStorage.removeItem("qeta3_customer_access_token");
+                window.location.href = "/login/";
+                return;
+            }
+
+            const refreshResponse = await fetch(
+                "/api/v1/auth/token/refresh/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        refresh: refreshToken,
+                    }),
+                }
+            );
+
+            if (!refreshResponse.ok) {
+                localStorage.removeItem("qeta3_customer_access_token");
+                localStorage.removeItem("qeta3_customer_refresh_token");
+
+                window.location.href = "/login/";
+                return;
+            }
+
+            const refreshData = await refreshResponse.json();
+
+            customerToken = refreshData.access;
+
+            localStorage.setItem(
+                "qeta3_customer_access_token",
+                customerToken
+            );
+
+            if (refreshData.refresh) {
+                localStorage.setItem(
+                    "qeta3_customer_refresh_token",
+                    refreshData.refresh
+                );
+            }
+
+            // Retry add to cart with new token
+            response = await addToCart(customerToken);
+        }
 
         const data = await response.json();
 
@@ -235,6 +317,12 @@ const response = await fetch(
         }
 
         button.textContent = "تمت الإضافة ✓";
+
+        const productName =
+            document.getElementById("product-name")?.textContent ||
+            "المنتج";
+
+        showCartModal(productName);
 
     } catch (error) {
         console.error(error);

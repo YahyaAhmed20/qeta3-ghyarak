@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}قطع غيارك | تفاصيل الطلب{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-detail-page {
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+
+    .order-navbar {
+        background: #fff;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .order-brand {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #212529;
+        text-decoration: none;
+    }
+
+    .order-section {
+        padding: 45px 0 70px;
+    }
+
+    .order-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 25px;
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .order-number {
+        font-size: 1.25rem;
+        font-weight: 800;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 50px;
+        background: #212529;
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 700;
+    }
+
+    .order-item {
+        padding: 16px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .order-item:last-child {
+        border-bottom: 0;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 12px;
+    }
+
+    .summary-total {
+        font-size: 1.15rem;
+        font-weight: 800;
+    }
+
+    .tracking {
+        position: relative;
+        padding-right: 18px;
+    }
+
+    .tracking-step {
+        position: relative;
+        padding-right: 30px;
+        padding-bottom: 25px;
+    }
+
+    .tracking-step:last-child {
+        padding-bottom: 0;
+    }
+
+    .tracking-step::before {
+        content: "";
+        position: absolute;
+        right: 5px;
+        top: 12px;
+        width: 2px;
+        height: 100%;
+        background: #dee2e6;
+    }
+
+    .tracking-step:last-child::before {
+        display: none;
+    }
+
+    .tracking-dot {
+        position: absolute;
+        right: 0;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ced4da;
+        z-index: 2;
+    }
+
+    .tracking-step.completed .tracking-dot,
+    .tracking-step.current .tracking-dot {
+        background: #198754;
+    }
+
+    .tracking-step.current .tracking-label {
+        font-weight: 800;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="order-detail-page">
+
+    <nav class="navbar order-navbar">
+        <div class="container py-2">
+
+            <a href="/" class="order-brand">
+                قطع غيارك
+            </a>
+
+            <a href="/" class="btn btn-outline-dark btn-sm">
+                الرئيسية
+            </a>
+
+        </div>
+    </nav>
+
+    <section class="order-section">
+        <div class="container">
+
+            <div
+                id="order-loading"
+                class="text-center py-5"
+            >
+                جاري تحميل تفاصيل الطلب...
+            </div>
+
+            <div
+                id="order-error"
+                class="alert alert-danger d-none"
+            ></div>
+
+            <div
+                id="order-content"
+                class="d-none"
+            >
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+                    <div>
+                        <div class="text-muted small mb-1">
+                            رقم الطلب
+                        </div>
+
+                        <div
+                            id="order-number"
+                            class="order-number"
+                        ></div>
+                    </div>
+
+                    <div
+                        id="order-status"
+                        class="status-badge"
+                    ></div>
+
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-lg-8">
+
+                        <div class="order-card mb-4">
+
+                            <div class="section-title">
+                                تتبع الطلب
+                            </div>
+
+                            <div
+                                id="order-tracking"
+                                class="tracking"
+                            ></div>
+
+                        </div>
+
+                        <div class="order-card mb-4">
+
+                            <div class="section-title">
+                                المنتجات
+                            </div>
+
+                            <div id="order-items"></div>
+
+                        </div>
+
+                        <div class="order-card">
+
+                            <div class="section-title">
+                                عنوان التوصيل
+                            </div>
+
+                            <div id="order-address"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <div class="order-card">
+
+                            <div class="section-title">
+                                ملخص الطلب
+                            </div>
+
+                            <div class="summary-row">
+                                <span>الإجمالي الفرعي</span>
+                                <strong id="order-subtotal"></strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>خصم المتجر</span>
+                                <strong id="seller-discount"></strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>خصم المنصة</span>
+                                <strong id="platform-discount"></strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>التوصيل</span>
+                                <strong id="delivery-fee"></strong>
+                            </div>
+
+                            <hr>
+
+                            <div class="summary-row summary-total">
+                                <span>الإجمالي</span>
+                                <strong id="order-total"></strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'customer/js/order_detail.js' %}"></script>
+{% endblock %}

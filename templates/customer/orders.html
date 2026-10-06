@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}طلباتي - قطع غيارك{% endblock %}
+
+{% block body %}
+
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">طلباتي</h2>
+            <p class="text-muted mb-0">
+                تابع جميع طلباتك وحالتها
+            </p>
+        </div>
+
+        <a href="/" class="btn btn-outline-dark">
+            العودة للتسوق
+        </a>
+    </div>
+
+    <!-- Loading -->
+    <div id="orders-loading" class="text-center py-5">
+        <div class="spinner-border" role="status"></div>
+        <p class="text-muted mt-3 mb-0">
+            جاري تحميل الطلبات...
+        </p>
+    </div>
+
+    <!-- Error -->
+    <div id="orders-error"
+         class="alert alert-danger d-none"
+         role="alert">
+    </div>
+
+    <!-- Empty -->
+    <div id="orders-empty"
+         class="text-center py-5 d-none">
+
+        <div class="mb-3" style="font-size: 48px;">
+            📦
+        </div>
+
+        <h4 class="fw-bold">
+            لا توجد طلبات حتى الآن
+        </h4>
+
+        <p class="text-muted">
+            عندما تقوم بإجراء أول طلب، سيظهر هنا.
+        </p>
+
+        <a href="/" class="btn btn-dark">
+            ابدأ التسوق
+        </a>
+    </div>
+
+    <!-- Orders -->
+    <div id="orders-content" class="d-none">
+
+        <div id="orders-list" class="row g-3">
+            <!-- Orders will be rendered here -->
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/customer/js/orders.js"></script>
+{% endblock %}

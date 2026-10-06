@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}قطع غيارك | تم تأكيد الطلب{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-success-page {
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+
+    .success-navbar {
+        background: #fff;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .success-brand {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #212529;
+        text-decoration: none;
+    }
+
+    .success-section {
+        padding: 70px 0;
+    }
+
+    .success-card {
+        max-width: 650px;
+        margin: 0 auto;
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 20px;
+        padding: 45px 30px;
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 75px;
+        height: 75px;
+        margin: 0 auto 25px;
+        border-radius: 50%;
+        background: #198754;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .order-number-box {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 18px;
+        margin: 25px 0;
+    }
+
+    .order-number {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .success-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="order-success-page">
+
+    <nav class="navbar success-navbar">
+        <div class="container py-2">
+
+            <a href="/" class="success-brand">
+                قطع غيارك
+            </a>
+
+        </div>
+    </nav>
+
+    <section class="success-section">
+
+        <div class="container">
+
+            <div class="success-card">
+
+                <div class="success-icon">
+                    ✓
+                </div>
+
+                <h1 class="fw-bold mb-3">
+                    تم تأكيد طلبك بنجاح
+                </h1>
+
+                <p class="text-muted mb-0">
+                    شكرًا لطلبك من قطع غيارك.
+                </p>
+
+                <div class="order-number-box">
+
+                    <div class="text-muted small mb-2">
+                        رقم الطلب
+                    </div>
+
+                    <div
+                        id="order-number"
+                        class="order-number"
+                    >
+                        جاري تحميل الطلب...
+                    </div>
+
+                </div>
+
+                <div
+                    id="order-error"
+                    class="alert alert-danger d-none"
+                ></div>
+
+                <div
+                    id="order-info"
+                    class="d-none"
+                >
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>حالة الطلب</span>
+                        <strong id="order-status"></strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span>الإجمالي</span>
+                        <strong id="order-total"></strong>
+                    </div>
+
+                </div>
+
+                <div class="success-actions">
+
+                    <a
+                        id="view-order-btn"
+                        href="#"
+                        class="btn btn-dark"
+                    >
+                        متابعة الطلب
+                    </a>
+
+                    <a
+                        href="/"
+                        class="btn btn-outline-dark"
+                    >
+                        العودة للرئيسية
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'customer/js/order_success.js' %}"></script>
+{% endblock %}

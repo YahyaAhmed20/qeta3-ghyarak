@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}قطع غيارك | إتمام الطلب{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-page {
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+
+    .checkout-navbar {
+        background: #fff;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .checkout-brand {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #212529;
+        text-decoration: none;
+    }
+
+    .checkout-section {
+        padding: 45px 0 70px;
+    }
+
+    .checkout-card,
+    .summary-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+    }
+
+    .checkout-card {
+        padding: 25px;
+    }
+
+    .summary-card {
+        padding: 25px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .address-card {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        padding: 16px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .address-card:hover {
+        border-color: #212529;
+    }
+
+    .address-card.selected {
+        border: 2px solid #212529;
+        background: #f8f9fa;
+    }
+
+    .address-radio {
+        width: 18px;
+        height: 18px;
+    }
+
+    .empty-address {
+        border: 1px dashed #adb5bd;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
+    .total-row {
+        font-size: 1.15rem;
+        font-weight: 800;
+    }
+
+    .checkout-note {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="checkout-page">
+
+    <nav class="navbar checkout-navbar">
+        <div class="container py-2">
+
+            <a href="/" class="checkout-brand">
+                قطع غيارك
+            </a>
+
+            <a
+                href="/cart/"
+                class="btn btn-outline-dark btn-sm"
+            >
+                العودة للسلة
+            </a>
+
+        </div>
+    </nav>
+
+    <section class="checkout-section">
+
+        <div class="container">
+
+            <h1 class="fw-bold mb-4">
+                إتمام الطلب
+            </h1>
+
+            <div
+                id="checkout-error"
+                class="alert alert-danger d-none"
+            ></div>
+
+            <div
+                id="checkout-success"
+                class="alert alert-success d-none"
+            ></div>
+
+            <div class="row g-4">
+
+                <!-- Checkout Form -->
+                <div class="col-lg-8">
+
+                    <div class="checkout-card mb-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="section-title mb-0">
+                                عنوان التوصيل
+                            </div>
+
+                            <button
+                                id="change-address-btn"
+                                type="button"
+                                class="btn btn-outline-dark btn-sm"
+                            >
+                                تغيير العنوان
+                            </button>
+                        </div>
+
+                        <!-- العنوان المختار حاليًا -->
+                        <div id="selected-address-container"></div>
+
+                        <!-- قائمة العناوين -->
+                        <div
+                            id="addresses-container"
+                            class="d-none flex-column gap-3 mt-3"
+                        ></div>
+
+                        <button
+                            id="add-address-btn"
+                            type="button"
+                            class="btn btn-outline-dark w-100 mt-3 d-none"
+                        >
+                            + إضافة عنوان جديد
+                        </button>
+
+                        <div id="addresses-loading" class="text-muted">
+                            جاري تحميل العناوين...
+                        </div>
+
+                        <div
+                            id="addresses-empty"
+                            class="empty-address d-none"
+                        >
+
+                            <h5 class="fw-bold">
+                                لا يوجد عنوان محفوظ
+                            </h5>
+
+                            <p class="text-muted mb-3">
+                                أضف عنوان التوصيل لإتمام الطلب.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="checkout-card">
+
+                        <div class="section-title">
+                            ملاحظات الطلب
+                        </div>
+
+                        <textarea
+                            id="checkout-notes"
+                            class="form-control checkout-note"
+                            placeholder="أي ملاحظات تريد إضافتها للطلب؟"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-lg-4">
+
+                    <div class="summary-card">
+
+                        <h5 class="fw-bold mb-4">
+                            ملخص الطلب
+                        </h5>
+
+                        <div
+                            id="checkout-cart-loading"
+                            class="text-muted"
+                        >
+                            جاري تحميل السلة...
+                        </div>
+
+                        <div
+                            id="checkout-cart-content"
+                            class="d-none"
+                        >
+
+                            <div
+                                id="checkout-cart-items"
+                                class="mb-3"
+                            ></div>
+
+                            <hr>
+
+                            <div class="summary-row">
+                                <span>عدد المنتجات</span>
+                                <strong id="checkout-items-count">
+                                    0
+                                </strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>الإجمالي</span>
+                                <strong id="checkout-subtotal">
+                                    0.00 ج.م
+                                </strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>التوصيل</span>
+                                <strong>
+                                    يُحدد لاحقًا
+                                </strong>
+                            </div>
+
+                            <hr>
+
+                            <div class="summary-row total-row">
+                                <span>الإجمالي</span>
+                                <strong id="checkout-total">
+                                    0.00 ج.م
+                                </strong>
+                            </div>
+
+                            <button
+                                id="confirm-order-btn"
+                                type="button"
+                                class="btn btn-dark btn-lg w-100 mt-3"
+                            >
+                                تأكيد الطلب
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<!-- Add Address Modal -->
+<div
+    class="modal fade"
+    id="add-address-modal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    إضافة عنوان جديد
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="إغلاق"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div
+                    id="add-address-error"
+                    class="alert alert-danger d-none"
+                ></div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">اسم العنوان</label>
+                        <input
+                            type="text"
+                            id="address-label"
+                            class="form-control"
+                            placeholder="مثال: المنزل"
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">اسم المستلم</label>
+                        <input
+                            type="text"
+                            id="address-recipient-name"
+                            class="form-control"
+                            placeholder="اسم المستلم"
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">رقم الهاتف</label>
+                        <input
+                            type="text"
+                            id="address-phone"
+                            class="form-control"
+                            placeholder="01xxxxxxxxx"
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">المحافظة / المدينة</label>
+                        <input
+                            type="text"
+                            id="address-city"
+                            class="form-control"
+                            placeholder="مثال: السويس"
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">المنطقة</label>
+                        <input
+                            type="text"
+                            id="address-area"
+                            class="form-control"
+                            placeholder="المنطقة"
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">العنوان بالتفصيل</label>
+                        <input
+                            type="text"
+                            id="address-line"
+                            class="form-control"
+                            placeholder="اسم الشارع والعنوان"
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">المبنى</label>
+                        <input
+                            type="text"
+                            id="address-building"
+                            class="form-control"
+                            placeholder="اختياري"
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">الدور</label>
+                        <input
+                            type="text"
+                            id="address-floor"
+                            class="form-control"
+                            placeholder="اختياري"
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">الشقة</label>
+                        <input
+                            type="text"
+                            id="address-apartment"
+                            class="form-control"
+                            placeholder="اختياري"
+                        >
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">علامة مميزة</label>
+                        <input
+                            type="text"
+                            id="address-landmark"
+                            class="form-control"
+                            placeholder="مثال: بجوار مسجد..."
+                        >
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="address-is-default"
+                            >
+
+                            <label
+                                class="form-check-label"
+                                for="address-is-default"
+                            >
+                                جعل هذا العنوان افتراضيًا
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    إلغاء
+                </button>
+
+                <button
+                    type="button"
+                    id="save-address-btn"
+                    class="btn btn-dark"
+                >
+                    حفظ العنوان
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'customer/js/checkout.js' %}"></script>
+{% endblock %}
