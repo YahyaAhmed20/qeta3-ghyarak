@@ -9,7 +9,7 @@ from apps.orders.api.views import (
     OrderListAPIView,
     OrderDetailAPIView,
 )
-from apps.orders.api.views import CheckoutAPIView
+
 
 urlpatterns = [
     path(
@@ -33,24 +33,18 @@ urlpatterns = [
         name="delivery-assignment-complete",
     ),
     path(
-    "checkout/",
-    CheckoutAPIView.as_view(),
-    name="checkout",
-),
-    
+        "checkout/",
+        CheckoutAPIView.as_view(),
+        name="checkout",
+    ),
     path(
-    "checkout/",
-    CheckoutAPIView.as_view(),
-    name="checkout",
-),
+        "",
+        OrderListAPIView.as_view(),
+        name="order-list",
+    ),
     path(
-    "",
-    OrderListAPIView.as_view(),
-    name="order-list",
-),
-    path(
-    "<uuid:order_id>/",
-    OrderDetailAPIView.as_view(),
-    name="order-detail",
-),
+        "<uuid:order_id>/",
+        OrderDetailAPIView.as_view(),
+        name="order-detail",
+    ),
 ]

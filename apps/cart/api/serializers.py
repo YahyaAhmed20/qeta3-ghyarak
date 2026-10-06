@@ -83,3 +83,6 @@ class CartSerializer(serializers.ModelSerializer):
 class CartItemWriteSerializer(serializers.Serializer):
     seller_product_id = serializers.UUIDField()
     quantity = serializers.IntegerField(min_value=1)
+    
+class CartItemQuantitySerializer(serializers.Serializer):
+    quantity = serializers.IntegerField(min_value=1)

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}قطع غيارك | تسجيل الدخول{% endblock %}
+
+{% block extra_css %}
+<style>
+    .customer-login-page {
+        min-height: 100vh;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 430px;
+        background: #fff;
+        border-radius: 18px;
+        padding: 35px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .login-brand {
+        font-size: 1.7rem;
+        font-weight: 800;
+    }
+
+    .login-title {
+        font-weight: 800;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="customer-login-page">
+
+    <div class="login-card">
+
+        <div class="text-center mb-4">
+            <div class="login-brand mb-2">
+                قطع غيارك
+            </div>
+
+            <h2 class="login-title">
+                تسجيل الدخول
+            </h2>
+
+            <p class="text-muted">
+                ادخل رقم موبايلك للمتابعة
+            </p>
+        </div>
+
+        <div id="login-error" class="alert alert-danger d-none"></div>
+
+        <div id="phone-step">
+
+            <label class="form-label">
+                رقم الموبايل
+            </label>
+
+            <input
+                id="customer-phone"
+                type="tel"
+                class="form-control form-control-lg mb-3"
+                placeholder="01xxxxxxxxx"
+                autocomplete="tel"
+            >
+
+            <button
+                id="request-otp-btn"
+                class="btn btn-dark btn-lg w-100"
+                type="button"
+            >
+                إرسال رمز التحقق
+            </button>
+
+        </div>
+
+        <div id="otp-step" class="d-none">
+
+            <label class="form-label">
+                رمز التحقق
+            </label>
+
+            <input
+                id="customer-otp"
+                type="text"
+                class="form-control form-control-lg mb-3 text-center"
+                maxlength="6"
+                inputmode="numeric"
+                placeholder="000000"
+                autocomplete="one-time-code"
+            >
+
+            <button
+                id="verify-otp-btn"
+                class="btn btn-dark btn-lg w-100"
+                type="button"
+            >
+                تأكيد الدخول
+            </button>
+
+            <button
+                id="back-phone-btn"
+                class="btn btn-link w-100 mt-2"
+                type="button"
+            >
+                تغيير رقم الموبايل
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'customer/js/customer_login.js' %}"></script>
+{% endblock %}

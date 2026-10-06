@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}قطع غيارك | تفاصيل المنتج{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-page {
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+
+    .product-navbar {
+        background: #fff;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .product-brand {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #212529;
+        text-decoration: none;
+    }
+
+    .product-content {
+        padding: 50px 0;
+    }
+
+    .product-card,
+    .seller-card {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 18px;
+        padding: 28px;
+    }
+
+    .product-category {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .product-title {
+        font-weight: 800;
+        font-size: 2rem;
+    }
+
+    .product-price {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .seller-card {
+        margin-bottom: 15px;
+    }
+
+    .seller-price {
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .info-title {
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .empty-info {
+        color: #6c757d;
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="product-page">
+
+    <nav class="navbar product-navbar">
+        <div class="container py-2">
+            <a href="/" class="product-brand">
+                قطع غيارك
+            </a>
+
+            <a href="/" class="btn btn-outline-dark btn-sm">
+                العودة للمنتجات
+            </a>
+        </div>
+    </nav>
+
+    <main class="product-content">
+        <div class="container">
+
+            <div id="product-loading" class="text-center py-5">
+                جاري تحميل المنتج...
+            </div>
+
+            <div
+                id="product-error"
+                class="alert alert-danger d-none"
+            ></div>
+
+            <div id="product-content" class="d-none">
+
+                <div class="row g-4">
+
+                    <div class="col-lg-8">
+
+                        <div class="product-card">
+
+                            <div
+                                id="product-category"
+                                class="product-category mb-2"
+                            ></div>
+
+                            <h1
+                                id="product-name"
+                                class="product-title mb-3"
+                            ></h1>
+
+                            <div
+                                id="product-brand"
+                                class="text-muted mb-3"
+                            ></div>
+
+                            <p
+                                id="product-description"
+                                class="text-muted"
+                            ></p>
+
+                            <hr>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <div class="info-title">
+                                        نوع المنتج
+                                    </div>
+                                    <div id="product-type"></div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="info-title">
+                                        بلد المنشأ
+                                    </div>
+                                    <div id="product-origin"></div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="info-title">
+                                        الضمان
+                                    </div>
+                                    <div id="product-warranty"></div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="product-card mt-4">
+
+                            <h4 class="info-title">
+                                أرقام القطعة
+                            </h4>
+
+                            <div id="part-numbers"></div>
+
+                        </div>
+
+                        <div class="product-card mt-4">
+
+                            <h4 class="info-title">
+                                السيارات المتوافقة
+                            </h4>
+
+                            <div id="compatibilities"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-4">
+
+                        <div class="product-card mb-4">
+
+                            <div class="text-muted mb-2">
+                                يبدأ من
+                            </div>
+
+                            <div
+                                id="product-price"
+                                class="product-price"
+                            ></div>
+
+                        </div>
+
+                        <h4 class="info-title">
+                            عروض المحلات
+                        </h4>
+
+                        <div id="sellers"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'customer/js/product_detail.js' %}"></script>
+{% endblock %}

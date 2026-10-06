@@ -20,6 +20,7 @@ from apps.dashboard.views import (
     seller_dashboard_view,
     seller_login_view,
 )
+from django.views.generic import TemplateView
 from project import settings
 from django.conf import settings
 from django.conf.urls.static import static
@@ -35,6 +36,13 @@ urlpatterns = [
     name="seller-dashboard",
 ),
     
+    path(
+    "login/",
+    TemplateView.as_view(
+        template_name="auth/customer_login.html"
+    ),
+    name="customer-login",
+),
     
     path("admin/", admin.site.urls),
     path(
@@ -104,6 +112,27 @@ urlpatterns = [
     "api/v1/inventory/",
     include("apps.inventory.api.urls"),
 ),
+    path(
+    "",
+    TemplateView.as_view(template_name="customer/home.html"),
+    name="customer-home",
+),
+    
+    path(
+    "marketplace/products/<uuid:product_id>/",
+    TemplateView.as_view(
+        template_name="customer/product_detail.html"
+    ),
+    name="customer-product-detail",
+),
+    path(
+    "cart/",
+    TemplateView.as_view(
+        template_name="customer/cart.html"
+    ),
+    name="customer-cart",
+),
+    
     
 ]
 

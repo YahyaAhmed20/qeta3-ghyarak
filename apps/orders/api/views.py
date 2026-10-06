@@ -11,6 +11,12 @@ from apps.orders.models import DeliveryAssignment
 from apps.orders.services.delivery_assignment import (
     DeliveryAssignmentService,
 )
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+
+from apps.orders.api.serializers import SellerOrderSerializer
+from apps.orders.selectors.order import OrderSelector
+from apps.stores.models import Store
 
 from apps.orders.api.serializers import (
     DeliveryAssignmentCreateSerializer,
@@ -517,20 +523,25 @@ class SellerOrderDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, order_id):
-        if request.user.role != "SELLER_OWNER":
+        store = (
+            Store.objects
+            .filter(
+                owner=request.user,
+                status="ACTIVE",
+                is_verified=True,
+            )
+            .first()
+        )
+
+        if not store:
             return Response(
-                {"detail": "Only sellers can view store orders."},
-                status=status.HTTP_403_FORBIDDEN,
+                {"detail": "You do not have an active verified store."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        order = (
-            Order.objects
-            .filter(
-                id=order_id,
-                store__owner=request.user,
-            )
-            .prefetch_related("items")
-            .first()
+        order = OrderSelector.get_store_order(
+            store=store,
+            order_id=order_id,
         )
 
         if order is None:
@@ -539,33 +550,10 @@ class SellerOrderDetailAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        serializer = SellerOrderSerializer(order)
+
         return Response(
-            {
-                "id": str(order.id),
-                "order_number": order.order_number,
-                "status": order.status,
-                "subtotal": str(order.subtotal),
-                "seller_discount": str(order.seller_discount),
-                "platform_discount": str(order.platform_discount),
-                "delivery_fee": str(order.delivery_fee),
-                "total": str(order.total),
-                "address_snapshot": order.address_snapshot,
-                "notes": order.notes,
-                "delivered_at": order.delivered_at,
-                "created_at": order.created_at,
-                "items": [
-                    {
-                        "id": str(item.id),
-                        "product_name": item.product_name_snapshot,
-                        "part_number": item.part_number_snapshot,
-                        "unit_price": str(item.unit_price),
-                        "discount": str(item.discount),
-                        "quantity": item.quantity,
-                        "subtotal": str(item.subtotal),
-                    }
-                    for item in order.items.all()
-                ],
-            },
+            serializer.data,
             status=status.HTTP_200_OK,
         )
         
@@ -750,3 +738,31 @@ class SellerOrderOutForDeliveryAPIView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+        
+        
+    
+class SellerOrderListAPIView(ListAPIView):
+    serializer_class = SellerOrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        store = (
+            Store.objects
+            .filter(
+                owner=self.request.user,
+                status="ACTIVE",
+                is_verified=True,
+            )
+            .first()
+        )
+
+        print("REQUEST USER:", self.request.user)
+        print("REQUEST USER ID:", self.request.user.id)
+        print("REQUEST USER PHONE:", self.request.user.phone)
+        print("STORE:", store)
+        print("STORE ID:", store.id if store else None)
+
+        if not store:
+            return []
+
+        return OrderSelector.get_store_orders(store=store)

@@ -390,6 +390,41 @@ function renderInventoryMovements(movements) {
         .map(movement => {
             const quantity = Number(movement.quantity);
 
+            const movementType = String(
+                movement.movement_type || ""
+            ).toUpperCase();
+
+            let quantityLabel;
+
+            switch (movementType) {
+                case "SALE":
+                    quantityLabel = `−${quantity} قطعة`;
+                    break;
+
+                case "RESERVATION":
+                    quantityLabel = `حجز ${quantity} قطعة`;
+                    break;
+
+                case "RELEASE":
+                    quantityLabel = `تحرير ${quantity} قطعة`;
+                    break;
+
+                case "RESTOCK":
+                    quantityLabel = `+${quantity} قطعة`;
+                    break;
+
+                case "RETURN":
+                    quantityLabel = `+${quantity} قطعة`;
+                    break;
+
+                case "ADJUSTMENT":
+                    quantityLabel = `تعديل ${quantity} قطعة`;
+                    break;
+
+                default:
+                    quantityLabel = `${quantity} قطعة`;
+            }
+
             const formattedDate = movement.created_at
                 ? new Date(movement.created_at).toLocaleString(
                     "ar-EG",
@@ -416,7 +451,7 @@ function renderInventoryMovements(movements) {
 </div>
 
                         <span class="inventory-movement-quantity">
-                            ${quantity}
+                            ${quantityLabel}
                         </span>
                     </div>
 

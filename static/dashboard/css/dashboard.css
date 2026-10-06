@@ -1144,3 +1144,28 @@
     background: #dcfce7;
     color: #166534;
 }
+
+.movement-sale {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.movement-reservation {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.movement-release {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.movement-return {
+    background: #f3e8ff;
+    color: #7e22ce;
+}
+
+.movement-adjustment {
+    background: #f3f4f6;
+    color: #374151;
+}

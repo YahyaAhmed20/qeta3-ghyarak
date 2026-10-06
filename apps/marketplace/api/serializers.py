@@ -4,6 +4,7 @@ from apps.marketplace.selectors.product import MarketplaceProductSelector
 
 
 class MarketplaceSellerSerializer(serializers.Serializer):
+    seller_product_id = serializers.UUIDField(source="id")
     store_name = serializers.CharField(source="store.name")
     city = serializers.CharField(source="store.city")
     price = serializers.DecimalField(
